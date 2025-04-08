@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>XRay Global BI</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Vazirmatn&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Vazirmatn', Tahoma, sans-serif;
+      background: url('{{ url_for("static", filename="img/BI.png") }}') no-repeat center center fixed;
+      background-size: cover;
+      direction: rtl;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .top-text {
+      position: absolute;
+      top: 10%;
+      right: 5%;
+      width: 400px;
+      color: #00f0ff;
+      font-size: 24px; /* بزرگتر شد */
+      font-weight: bold;
+      text-shadow: 0 0 6px rgba(0, 240, 255, 0.7);
+      text-align: center;
+    }
+
+    .bottom-text {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 14px;
+      color: #fff;
+      direction: ltr;
+      text-shadow: 1px 1px 2px #000;
+    }
+
+    .login-box {
+      position: absolute;
+      top: 20%;
+      right: 5%;
+      width: 400px; /* بزرگ‌تر شد */
+      background: rgba(255, 255, 255, 0.96);
+      padding: 35px;
+      border-radius: 16px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.2);
+    }
+
+    .login-box h2 {
+      margin: 0 0 5px;
+      font-size: 22px; /* بزرگ‌تر شد */
+      font-weight: bold;
+      color: #333;
+      text-align: center; /* وسط‌چین شد */
+    }
+
+    .login-box h3 {
+      margin: 0 0 25px;
+      font-size: 26px; /* بزرگ‌تر شد */
+      font-weight: bold;
+      color: #000;
+      text-align: center; /* وسط‌چین شد */
+    }
+
+    .login-box label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 15px;
+      color: #333;
+    }
+
+    .login-box input {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-family: inherit;
+    }
+
+    .login-box button {
+      width: 100%;
+      padding: 12px;
+      background-color: #007bff;
+      color: white;
+      font-size: 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .login-box button:hover {
+      background-color: #0056b3;
+    }
+
+    .error-message {
+      color: #ff3860;
+      text-align: center;
+      margin-bottom: 15px;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="top-text">Hitachi &nbsp;&nbsp; XRay Global Analytics</div>
+
+  <div class="login-box">
+    <h2>سیستم جامع هوش تجاری</h2>
+    <h3>XRay Global</h3>
+    
+    {% if error %}
+    <div class="error-message">
+        <i class="fas fa-exclamation-circle"></i> {{ error }}
+    </div>
+    {% endif %}
+    
+    <form action="{{ url_for('login') }}" method="post">
+      <label for="username">نام کاربری</label>
+      <input type="text" id="username" name="username" placeholder="نام کاربری خود را وارد کنید" required>
+
+      <label for="password">رمز عبور</label>
+      <input type="password" id="password" name="password" placeholder="رمز عبور خود را وارد کنید" required>
+
+      <button type="submit">ورود به سیستم</button>
+    </form>
+  </div>
+
+  <div class="bottom-text">© 2005–2025 Hitachi &nbsp;&nbsp;&nbsp; All Rights Reserved</div>
+  
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

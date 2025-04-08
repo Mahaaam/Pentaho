@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>داشبورد اصلی - XRay Global</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- منوی کناری -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <img src="{{ url_for('static', filename='img/xray-logo.png') }}" alt="XRay Global">
+        </div>
+        <ul class="sidebar-menu">
+            <li class="sidebar-menu-item">
+                <a href="{{ url_for('dashboard') }}" class="active">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span class="menu-text">داشبورد اصلی</span>
+                </a>
+            </li>
+            <li class="sidebar-menu-item">
+                <a href="{{ url_for('sales_dashboard') }}">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span class="menu-text">مدیریت فروش</span>
+                </a>
+            </li>
+            <li class="sidebar-menu-item">
+                <a href="{{ url_for('accounting_dashboard') }}">
+                    <i class="fas fa-calculator"></i>
+                    <span class="menu-text">گزارشات مالی</span>
+                </a>
+            </li>
+            <li class="sidebar-menu-item">
+                <a href="{{ url_for('production_dashboard') }}">
+                    <i class="fas fa-industry"></i>
+                    <span class="menu-text">عملکرد تولید</span>
+                </a>
+            </li>
+            {% if role == 'admin' %}
+            <li class="sidebar-menu-item">
+                <a href="#" id="pentaho-server-control">
+                    <i class="fas fa-server"></i>
+                    <span class="menu-text">مدیریت سرور</span>
+                </a>
+            </li>
+            {% endif %}
+            <li class="sidebar-menu-item">
+                <a href="{{ url_for('logout') }}">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span class="menu-text">خروج</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- هدر -->
+    <header id="header">
+        <div class="toggle-sidebar" id="toggle-sidebar">
+            <i class="fas fa-bars"></i>
+        </div>
+        <div>
+            <strong>داشبورد اصلی</strong> / خلاصه وضعیت
+        </div>
+        <div class="user-profile">
+            <span>خوش آمدید، {{ user }}</span>
+            <div class="user-avatar">
+                {{ user[0] }}
+            </div>
+        </div>
+    </header>
+
+    <!-- محتوای اصلی -->
+    <div class="main-content" id="main-content">
+        <!-- کارت‌های آمار -->
+        <div class="row">
+            <div class="col">
+                <div class="stat-card">
+                    <div class="stat-icon blue-bg">
+                        <i class="fas fa-shopping-bag"></i>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-value">۷,۸۵۴,۰۰۰ تومان</div>
+                        <div class="stat-label">فروش ماهیانه</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="stat-card">
+                    <div class="stat-icon green-bg">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-value">۲۳%</div>
+                        <div class="stat-label">رشد فروش</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="stat-card">
+                    <div class="stat-icon orange-bg">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-value">۱,۴۵۶</div>
+                        <div class="stat-label">مشتریان جدید</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="stat-card">
+                    <div class="stat-icon red-bg">
+                        <i class="fas fa-clipboard-list"></i>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-value">۲۸۵</div>
+                        <div class="stat-label">سفارشات جاری</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- نمودارها -->
+        <div class="row">
+            <div class="col">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">روند فروش ماهیانه</h2>
+                        <div>
+                            <select id="sales-chart-year" class="form-control">
+                                <option value="1403">۱۴۰۳</option>
+                                <option value="1402">۱۴۰۲</option>
+                                <option value="1401">۱۴۰۱</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="salesChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">توزیع فروش محصولات</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="productsChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">فروش منطقه‌ای</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="regionChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- جدول آخرین سفارشات -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">آخرین سفارشات</h2>
+                <a href="#" class="btn btn-primary">مشاهده همه</a>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>شماره سفارش</th>
+                                <th>مشتری</th>
+                                <th>تاریخ</th>
+                                <th>وضعیت</th>
+                                <th>مبلغ</th>
+                                <th>عملیات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>#ORD-۱۴۵۶</td>
+                                <td>شرکت نگین خاورمیانه</td>
+                                <td>۱۴۰۳/۰۱/۰۵</td>
+                                <td><span class="badge badge-success">تکمیل شده</span></td>
+                                <td>۱,۸۶۸,۰۰۰ تومان</td>
+                                <td>
+                                    <a href="#" class="btn-action"><i class="fas fa-eye"></i></a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>#ORD-۱۴۵۵</td>
+                                <td>فروشگاه صنعتی پایش</td>
+                                <td>۱۴۰۳/۰۱/۰۴</td>
+                                <td><span class="badge badge-primary">در حال ارسال</span></td>
+                                <td>۷۵۶,۰۰۰ تومان</td>
+                                <td>
+                                    <a href="#" class="btn-action"><i class="fas fa-eye"></i></a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>#ORD-۱۴۵۴</td>
+                                <td>توسعه فناوری آسیا</td>
+                                <td>۱۴۰۳/۰۱/۰۳</td>
+                                <td><span class="badge badge-warning">در انتظار پرداخت</span></td>
+                                <td>۲,۳۵۰,۰۰۰ تومان</td>
+                                <td>
+                                    <a href="#" class="btn-action"><i class="fas fa-eye"></i></a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>#ORD-۱۴۵۳</td>
+                                <td>گروه صنعتی مهرگان</td>
+                                <td>۱۴۰۳/۰۱/۰۱</td>
+                                <td><span class="badge badge-success">تکمیل شده</span></td>
+                                <td>۹۴۲,۰۰۰ تومان</td>
+                                <td>
+                                    <a href="#" class="btn-action"><i class="fas fa-eye"></i></a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>#ORD-۱۴۵۲</td>
+                                <td>بازرگانی پارسیان</td>
+                                <td>۱۴۰۲/۱۲/۲۸</td>
+                                <td><span class="badge badge-success">تکمیل شده</span></td>
+                                <td>۱,۲۴۰,۰۰۰ تومان</td>
+                                <td>
+                                    <a href="#" class="btn-action"><i class="fas fa-eye"></i></a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- وضعیت سرور پنتاهو -->
+        {% if role == 'admin' %}
+        <div class="card" id="pentaho-server-status-card">
+            <div class="card-header">
+                <h2 class="card-title">وضعیت سرور XRay Global</h2>
+            </div>
+            <div class="card-body">
+                <div id="server-status-container">
+                    <div id="server-status-loading">
+                        در حال بررسی وضعیت سرور...
+                        <i class="fas fa-spinner fa-spin"></i>
+                    </div>
+                    <div id="server-status-content" style="display:none;">
+                        <div class="server-status-indicator">
+                            <span id="status-icon"><i class="fas fa-check-circle"></i></span>
+                            <span id="status-text">وضعیت سرور: آنلاین</span>
+                        </div>
+                        <div class="server-actions">
+                            <button id="start-server" class="btn btn-success">راه‌اندازی سرور</button>
+                            <button id="stop-server" class="btn btn-danger">توقف سرور</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+    </div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+</body>
+</html>

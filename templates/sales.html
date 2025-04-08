@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>داشبورد فروش - XRay Global</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- منوی کناری -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <img src="{{ url_for('static', filename='img/xray-logo.png') }}" alt="XRay Global">
+        </div>
+        <ul class="sidebar-menu">
+            <li class="sidebar-menu-item">
+                <a href="{{ url_for('dashboard') }}">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span class="menu-text">داشبورد اصلی</span>
+                </a>
+            </li>
+            <li class="sidebar-menu-item">
+                <a href="{{ url_for('sales_dashboard') }}" class="active">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span class="menu-text">مدیریت فروش</span>
+                </a>
+            </li>
+            <li class="sidebar-menu-item">
+                <a href="{{ url_for('accounting_dashboard') }}">
+                    <i class="fas fa-calculator"></i>
+                    <span class="menu-text">گزارشات مالی</span>
+                </a>
+            </li>
+            <li class="sidebar-menu-item">
+                <a href="{{ url_for('production_dashboard') }}">
+                    <i class="fas fa-industry"></i>
+                    <span class="menu-text">عملکرد تولید</span>
+                </a>
+            </li>
+            {% if role == 'admin' %}
+            <li class="sidebar-menu-item">
+                <a href="#" id="pentaho-server-control">
+                    <i class="fas fa-server"></i>
+                    <span class="menu-text">مدیریت سرور</span>
+                </a>
+            </li>
+            {% endif %}
+            <li class="sidebar-menu-item">
+                <a href="{{ url_for('logout') }}">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span class="menu-text">خروج</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- هدر -->
+    <header id="header">
+        <div class="toggle-sidebar" id="toggle-sidebar">
+            <i class="fas fa-bars"></i>
+        </div>
+        <div>
+            <strong>مدیریت فروش</strong> / تحلیل داده‌های فروش
+        </div>
+        <div class="user-profile">
+            <span>خوش آمدید، {{ user }}</span>
+            <div class="user-avatar">
+                {{ user[0] }}
+            </div>
+        </div>
+    </header>
+
+    <!-- محتوای اصلی -->
+    <div class="main-content" id="main-content">
+        <!-- فیلترهای گزارش -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">فیلترهای گزارش</h2>
+                <button class="btn btn-primary" id="apply-filters">اعمال فیلترها</button>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="date-from">از تاریخ</label>
+                            <input type="date" id="date-from" class="form-control">
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="date-to">تا تاریخ</label>
+                            <input type="date" id="date-to" class="form-control">
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="product-category">گروه محصول</label>
+                            <select id="product-category" class="form-control">
+                                <option value="">همه گروه‌ها</option>
+                                <option value="1">گروه محصول A</option>
+                                <option value="2">گروه محصول B</option>
+                                <option value="3">گروه محصول C</option>
+                                <option value="4">گروه محصول D</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="customer-group">گروه مشتریان</label>
+                            <select id="customer-group" class="form-control">
+                                <option value="">همه مشتریان</option>
+                                <option value="1">مشتریان برتر</option>
+                                <option value="2">مشتریان عادی</option>
+                                <option value="3">مشتریان جدید</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- کارت‌های آمار -->
+        <div class="row">
+            <div class="col">
+                <div class="stat-card">
+                    <div class="stat-icon blue-bg">
+                        <i class="fas fa-chart-bar"></i>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-value">۷۸,۵۴۵,۰۰۰ تومان</div>
+                        <div class="stat-label">کل فروش</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="stat-card">
+                    <div class="stat-icon green-bg">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-value">۲,۷۵۶</div>
+                        <div class="stat-label">تعداد مشتریان</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="stat-card">
+                    <div class="stat-icon orange-bg">
+                        <i class="fas fa-box"></i>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-value">۴,۸۷۸</div>
+                        <div class="stat-label">تعداد سفارشات</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="stat-card">
+                    <div class="stat-icon red-bg">
+                        <i class="fas fa-calendar-alt"></i>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-value">۵۶.۴%</div>
+                        <div class="stat-label">نرخ رشد ماهیانه</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- نمودارهای فروش -->
+        <div class="row">
+            <div class="col">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">روند فروش ماهیانه</h2>
+                        <select id="sales-trend-type" class="form-control">
+                            <option value="amount">مبلغ فروش</option>
+                            <option value="count">تعداد فروش</option>
+                        </select>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="salesTrendChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">محصولات پرفروش</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="topProductsChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">مشتریان برتر</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="topCustomersChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- جدول جزئیات فروش -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">جزئیات فروش</h2>
+                <div>
+                    <button class="btn btn-primary" id="export-excel">
+                        <i class="fas fa-file-excel"></i> خروجی اکسل
+                    </button>
+                    <button class="btn btn-danger" id="export-pdf">
+                        <i class="fas fa-file-pdf"></i> خروجی PDF
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>کد محصول</th>
+                                <th>نام محصول</th>
+                                <th>گروه</th>
+                                <th>تعداد فروش</th>
+                                <th>قیمت واحد</th>
+                                <th>مبلغ کل</th>
+                                <th>درصد سود</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>P001</td>
+                                <td>محصول آلفا پلاس</td>
+                                <td>گروه A</td>
+                                <td>1,245</td>
+                                <td>۳۴۵,۰۰۰ تومان</td>
+                                <td>۴۲۹,۵۲۵,۰۰۰ تومان</td>
+                                <td>۴۵%</td>
+                            </tr>
+                            <tr>
+                                <td>P002</td>
+                                <td>محصول بتا</td>
+                                <td>گروه A</td>
+                                <td>987</td>
+                                <td>۲۹۸,۰۰۰ تومان</td>
+                                <td>۲۹۴,۱۲۶,۰۰۰ تومان</td>
+                                <td>۳۸%</td>
+                            </tr>
+                            <tr>
+                                <td>P003</td>
+                                <td>محصول گاما زد</td>
+                                <td>گروه B</td>
+                                <td>756</td>
+                                <td>۴۶۵,۰۰۰ تومان</td>
+                                <td>۳۵۱,۵۴۰,۰۰۰ تومان</td>
+                                <td>۵۲%</td>
+                            </tr>
+                            <tr>
+                                <td>P004</td>
+                                <td>محصول دلتا پرو</td>
+                                <td>گروه C</td>
+                                <td>543</td>
+                                <td>۵۷۸,۰۰۰ تومان</td>
+                                <td>۳۱۳,۸۵۴,۰۰۰ تومان</td>
+                                <td>۴۱%</td>
+                            </tr>
+                            <tr>
+                                <td>P005</td>
+                                <td>محصول اپسیلون ۲</td>
+                                <td>گروه B</td>
+                                <td>421</td>
+                                <td>۶۵۴,۰۰۰ تومان</td>
+                                <td>۲۷۵,۳۳۴,۰۰۰ تومان</td>
+                                <td>۴۹%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="pagination">
+                    <a href="#">&laquo;</a>
+                    <a href="#" class="active">۱</a>
+                    <a href="#">۲</a>
+                    <a href="#">۳</a>
+                    <a href="#">۴</a>
+                    <a href="#">۵</a>
+                    <a href="#">&raquo;</a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/sales-charts.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>عملکرد تولید - XRay Global</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- منوی کناری -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <img src="{{ url_for('static', filename='img/xray-logo.svg') }}" alt="XRay Global">
+        </div>
+        <ul class="sidebar-menu">
+            <li class="sidebar-menu-item">
+                <a href="{{ url_for('dashboard') }}">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span class="menu-text">داشبورد اصلی</span>
+                </a>
+            </li>
+            <li class="sidebar-menu-item">
+                <a href="{{ url_for('sales_dashboard') }}">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span class="menu-text">مدیریت فروش</span>
+                </a>
+            </li>
+            <li class="sidebar-menu-item">
+                <a href="{{ url_for('accounting_dashboard') }}">
+                    <i class="fas fa-calculator"></i>
+                    <span class="menu-text">گزارشات مالی</span>
+                </a>
+            </li>
+            <li class="sidebar-menu-item">
+                <a href="{{ url_for('production_dashboard') }}" class="active">
+                    <i class="fas fa-industry"></i>
+                    <span class="menu-text">عملکرد تولید</span>
+                </a>
+            </li>
+            {% if role == 'admin' %}
+            <li class="sidebar-menu-item">
+                <a href="#" id="pentaho-server-control">
+                    <i class="fas fa-server"></i>
+                    <span class="menu-text">مدیریت سرور</span>
+                </a>
+            </li>
+            {% endif %}
+            <li class="sidebar-menu-item">
+                <a href="{{ url_for('logout') }}">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span class="menu-text">خروج</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- هدر -->
+    <header id="header">
+        <div class="toggle-sidebar" id="toggle-sidebar">
+            <i class="fas fa-bars"></i>
+        </div>
+        <div>
+            <strong>عملکرد تولید</strong> / تحلیل فرآیندهای تولید
+        </div>
+        <div class="user-profile">
+            <span>خوش آمدید، {{ user }}</span>
+            <div class="user-avatar">
+                {{ user[0] }}
+            </div>
+        </div>
+    </header>
+
+    <!-- محتوای اصلی -->
+    <div class="main-content" id="main-content">
+        <!-- فیلترهای گزارش -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">فیلترهای گزارش</h2>
+                <button class="btn btn-primary" id="apply-filters">اعمال فیلترها</button>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="date-from">از تاریخ</label>
+                            <input type="date" id="date-from" class="form-control">
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="date-to">تا تاریخ</label>
+                            <input type="date" id="date-to" class="form-control">
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="production-line">خط تولید</label>
+                            <select id="production-line" class="form-control">
+                                <option value="">همه خطوط</option>
+                                <option value="line1">خط تولید ۱</option>
+                                <option value="line2">خط تولید ۲</option>
+                                <option value="line3">خط تولید ۳</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="product-group">گروه محصول</label>
+                            <select id="product-group" class="form-control">
+                                <option value="">همه گروه‌ها</option>
+                                <option value="1">گروه محصول A</option>
+                                <option value="2">گروه محصول B</option>
+                                <option value="3">گروه محصول C</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- کارت‌های آمار -->
+        <div class="row">
+            <div class="col">
+                <div class="stat-card">
+                    <div class="stat-icon blue-bg">
+                        <i class="fas fa-cogs"></i>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-value">۸۹.۵%</div>
+                        <div class="stat-label">بازده تولید</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="stat-card">
+                    <div class="stat-icon green-bg">
+                        <i class="fas fa-box"></i>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-value">۱۲,۴۵۶</div>
+                        <div class="stat-label">میزان تولید (واحد)</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="stat-card">
+                    <div class="stat-icon orange-bg">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-value">۲.۳%</div>
+                        <div class="stat-label">نرخ ضایعات</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="stat-card">
+                    <div class="stat-icon red-bg">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-value">۱۲۳:۴۵</div>
+                        <div class="stat-label">توقف تولید (ساعت)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- نمودارهای تولید -->
+        <div class="row">
+            <div class="col">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">میزان تولید روزانه</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="dailyProductionChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">مقایسه عملکرد خطوط تولید</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="productionLinesChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">علل توقف تولید</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="downtimeReasonsChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- جدول کنترل کیفیت -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">گزارش کنترل کیفیت</h2>
+                <div>
+                    <button class="btn btn-primary" id="export-excel">
+                        <i class="fas fa-file-excel"></i> خروجی اکسل
+                    </button>
+                    <button class="btn btn-danger" id="export-pdf">
+                        <i class="fas fa-file-pdf"></i> خروجی PDF
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>کد محصول</th>
+                                <th>نام محصول</th>
+                                <th>خط تولید</th>
+                                <th>تعداد تولید</th>
+                                <th>تعداد ضایعات</th>
+                                <th>درصد ضایعات</th>
+                                <th>وضعیت</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>P001</td>
+                                <td>محصول آلفا پلاس</td>
+                                <td>خط ۱</td>
+                                <td>۳,۴۵۶</td>
+                                <td>۴۵</td>
+                                <td>۱.۳%</td>
+                                <td><span class="status-badge success">قابل قبول</span></td>
+                            </tr>
+                            <tr>
+                                <td>P002</td>
+                                <td>محصول بتا</td>
+                                <td>خط ۲</td>
+                                <td>۲,۸۷۶</td>
+                                <td>۶۵</td>
+                                <td>۲.۲%</td>
+                                <td><span class="status-badge success">قابل قبول</span></td>
+                            </tr>
+                            <tr>
+                                <td>P003</td>
+                                <td>محصول گاما زد</td>
+                                <td>خط ۱</td>
+                                <td>۱,۹۸۷</td>
+                                <td>۱۵۶</td>
+                                <td>۷.۸%</td>
+                                <td><span class="status-badge warning">نیاز به بررسی</span></td>
+                            </tr>
+                            <tr>
+                                <td>P004</td>
+                                <td>محصول دلتا پرو</td>
+                                <td>خط ۳</td>
+                                <td>۲,۳۴۵</td>
+                                <td>۳۲</td>
+                                <td>۱.۴%</td>
+                                <td><span class="status-badge success">قابل قبول</span></td>
+                            </tr>
+                            <tr>
+                                <td>P005</td>
+                                <td>محصول اپسیلون ۲</td>
+                                <td>خط ۲</td>
+                                <td>۱,۷۹۲</td>
+                                <td>۱۹۸</td>
+                                <td>۱۱.۰%</td>
+                                <td><span class="status-badge danger">نیاز به اصلاح</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="pagination">
+                    <a href="#">&laquo;</a>
+                    <a href="#" class="active">۱</a>
+                    <a href="#">۲</a>
+                    <a href="#">۳</a>
+                    <a href="#">۴</a>
+                    <a href="#">۵</a>
+                    <a href="#">&raquo;</a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/production-charts.js') }}"></script>
+</body>
+</html>

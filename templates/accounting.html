@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>گزارشات مالی - XRay Global</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- منوی کناری -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <img src="{{ url_for('static', filename='img/xray-logo.png') }}" alt="XRay Global">
+        </div>
+        <ul class="sidebar-menu">
+            <li class="sidebar-menu-item">
+                <a href="{{ url_for('dashboard') }}">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span class="menu-text">داشبورد اصلی</span>
+                </a>
+            </li>
+            <li class="sidebar-menu-item">
+                <a href="{{ url_for('sales_dashboard') }}">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span class="menu-text">مدیریت فروش</span>
+                </a>
+            </li>
+            <li class="sidebar-menu-item">
+                <a href="{{ url_for('accounting_dashboard') }}" class="active">
+                    <i class="fas fa-calculator"></i>
+                    <span class="menu-text">گزارشات مالی</span>
+                </a>
+            </li>
+            <li class="sidebar-menu-item">
+                <a href="{{ url_for('production_dashboard') }}">
+                    <i class="fas fa-industry"></i>
+                    <span class="menu-text">عملکرد تولید</span>
+                </a>
+            </li>
+            {% if role == 'admin' %}
+            <li class="sidebar-menu-item">
+                <a href="#" id="pentaho-server-control">
+                    <i class="fas fa-server"></i>
+                    <span class="menu-text">مدیریت سرور</span>
+                </a>
+            </li>
+            {% endif %}
+            <li class="sidebar-menu-item">
+                <a href="{{ url_for('logout') }}">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span class="menu-text">خروج</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- هدر -->
+    <header id="header">
+        <div class="toggle-sidebar" id="toggle-sidebar">
+            <i class="fas fa-bars"></i>
+        </div>
+        <div>
+            <strong>گزارشات مالی</strong> / تحلیل صورت‌های مالی
+        </div>
+        <div class="user-profile">
+            <span>خوش آمدید، {{ user }}</span>
+            <div class="user-avatar">
+                {{ user[0] }}
+            </div>
+        </div>
+    </header>
+
+    <!-- محتوای اصلی -->
+    <div class="main-content" id="main-content">
+        <!-- فیلترهای گزارش -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">فیلترهای گزارش</h2>
+                <button class="btn btn-primary" id="apply-filters">اعمال فیلترها</button>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="fiscal-year">سال مالی</label>
+                            <select id="fiscal-year" class="form-control">
+                                <option value="1404">۱۴۰۴</option>
+                                <option value="1403">۱۴۰۳</option>
+                                <option value="1402">۱۴۰۲</option>
+                                <option value="1401">۱۴۰۱</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="fiscal-quarter">دوره مالی</label>
+                            <select id="fiscal-quarter" class="form-control">
+                                <option value="all">کل سال</option>
+                                <option value="q1">سه‌ماهه اول</option>
+                                <option value="q2">سه‌ماهه دوم</option>
+                                <option value="q3">سه‌ماهه سوم</option>
+                                <option value="q4">سه‌ماهه چهارم</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="report-type">نوع گزارش</label>
+                            <select id="report-type" class="form-control">
+                                <option value="all">همه گزارشات</option>
+                                <option value="income">صورت سود و زیان</option>
+                                <option value="balance">ترازنامه</option>
+                                <option value="cash-flow">جریان نقدی</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="department">دپارتمان</label>
+                            <select id="department" class="form-control">
+                                <option value="all">همه دپارتمان‌ها</option>
+                                <option value="sales">فروش</option>
+                                <option value="production">تولید</option>
+                                <option value="admin">اداری</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- کارت‌های آمار -->
+        <div class="row">
+            <div class="col">
+                <div class="stat-card">
+                    <div class="stat-icon blue-bg">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-value">۸۶,۴۵۰,۰۰۰,۰۰۰ ریال</div>
+                        <div class="stat-label">درآمد کل</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="stat-card">
+                    <div class="stat-icon green-bg">
+                        <i class="fas fa-money-bill-wave"></i>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-value">۱۸,۷۶۲,۰۰۰,۰۰۰ ریال</div>
+                        <div class="stat-label">سود خالص</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="stat-card">
+                    <div class="stat-icon orange-bg">
+                        <i class="fas fa-percentage"></i>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-value">۲۱.۷%</div>
+                        <div class="stat-label">حاشیه سود</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="stat-card">
+                    <div class="stat-icon purple-bg">
+                        <i class="fas fa-balance-scale"></i>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-value">۱۵۴,۳۲۵,۰۰۰,۰۰۰ ریال</div>
+                        <div class="stat-label">کل دارایی‌ها</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- نمودارهای مالی -->
+        <div class="row">
+            <div class="col">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">درآمد و هزینه‌های سالانه</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="incomeExpenseChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">توزیع هزینه‌ها</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="expenseDistributionChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">روند سود ناخالص</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="grossProfitTrendChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- صورت سود و زیان -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">صورت سود و زیان</h2>
+                <div>
+                    <button class="btn btn-primary" id="export-excel">
+                        <i class="fas fa-file-excel"></i> خروجی اکسل
+                    </button>
+                    <button class="btn btn-danger" id="export-pdf">
+                        <i class="fas fa-file-pdf"></i> خروجی PDF
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>شرح</th>
+                                <th>سال ۱۴۰۴ (ریال)</th>
+                                <th>سال ۱۴۰۳ (ریال)</th>
+                                <th>تغییرات (%)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="table-section">
+                                <td>درآمد عملیاتی</td>
+                                <td>۸۶,۴۵۰,۰۰۰,۰۰۰</td>
+                                <td>۷۲,۳۴۰,۰۰۰,۰۰۰</td>
+                                <td class="positive-change">+۱۹.۵%</td>
+                            </tr>
+                            <tr>
+                                <td>بهای تمام شده کالای فروش رفته</td>
+                                <td>(۵۴,۲۱۵,۰۰۰,۰۰۰)</td>
+                                <td>(۴۵,۸۷۰,۰۰۰,۰۰۰)</td>
+                                <td class="negative-change">+۱۸.۲%</td>
+                            </tr>
+                            <tr class="table-section">
+                                <td>سود ناخالص</td>
+                                <td>۳۲,۲۳۵,۰۰۰,۰۰۰</td>
+                                <td>۲۶,۴۷۰,۰۰۰,۰۰۰</td>
+                                <td class="positive-change">+۲۱.۸%</td>
+                            </tr>
+                            <tr>
+                                <td>هزینه‌های فروش</td>
+                                <td>(۴,۵۶۷,۰۰۰,۰۰۰)</td>
+                                <td>(۳,۹۸۵,۰۰۰,۰۰۰)</td>
+                                <td class="negative-change">+۱۴.۶%</td>
+                            </tr>
+                            <tr>
+                                <td>هزینه‌های اداری و عمومی</td>
+                                <td>(۶,۸۹۲,۰۰۰,۰۰۰)</td>
+                                <td>(۵,۸۴۵,۰۰۰,۰۰۰)</td>
+                                <td class="negative-change">+۱۷.۹%</td>
+                            </tr>
+                            <tr>
+                                <td>سایر درآمدهای عملیاتی</td>
+                                <td>۹۸۵,۰۰۰,۰۰۰</td>
+                                <td>۷۴۶,۰۰۰,۰۰۰</td>
+                                <td class="positive-change">+۳۲.۰%</td>
+                            </tr>
+                            <tr class="table-section">
+                                <td>سود عملیاتی</td>
+                                <td>۲۱,۷۶۱,۰۰۰,۰۰۰</td>
+                                <td>۱۷,۳۸۶,۰۰۰,۰۰۰</td>
+                                <td class="positive-change">+۲۵.۲%</td>
+                            </tr>
+                            <tr>
+                                <td>هزینه‌های مالی</td>
+                                <td>(۲,۳۴۵,۰۰۰,۰۰۰)</td>
+                                <td>(۲,۶۷۵,۰۰۰,۰۰۰)</td>
+                                <td class="positive-change">-۱۲.۳%</td>
+                            </tr>
+                            <tr>
+                                <td>سایر درآمدها و هزینه‌های غیرعملیاتی</td>
+                                <td>۵۴۲,۰۰۰,۰۰۰</td>
+                                <td>۳۲۵,۰۰۰,۰۰۰</td>
+                                <td class="positive-change">+۶۶.۸%</td>
+                            </tr>
+                            <tr class="table-section">
+                                <td>سود قبل از مالیات</td>
+                                <td>۱۹,۹۵۸,۰۰۰,۰۰۰</td>
+                                <td>۱۵,۰۳۶,۰۰۰,۰۰۰</td>
+                                <td class="positive-change">+۳۲.۷%</td>
+                            </tr>
+                            <tr>
+                                <td>مالیات</td>
+                                <td>(۱,۱۹۶,۰۰۰,۰۰۰)</td>
+                                <td>(۹۰۲,۰۰۰,۰۰۰)</td>
+                                <td class="negative-change">+۳۲.۶%</td>
+                            </tr>
+                            <tr class="table-section">
+                                <td>سود خالص</td>
+                                <td>۱۸,۷۶۲,۰۰۰,۰۰۰</td>
+                                <td>۱۴,۱۳۴,۰۰۰,۰۰۰</td>
+                                <td class="positive-change">+۳۲.۷%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/accounting-charts.js') }}"></script>
+</body>
+</html>
