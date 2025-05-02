@@ -16,8 +16,13 @@ import time
 import re
 import csv
 import io
+import pandas as pd
 from werkzeug.security import generate_password_hash, check_password_hash
 from dotenv import load_dotenv
+
+# ماژول‌های رابط رایورز را وارد می‌کنیم
+from rayvarz_api import rayvarz_api
+from rayvarz_data_connector import get_connector
 
 # بارگذاری متغیرهای محیطی
 load_dotenv()
@@ -25,6 +30,9 @@ load_dotenv()
 app = Flask(__name__)
 CORS(app)
 app.secret_key = os.environ.get('SECRET_KEY', 'xray_global_default_secret_key')
+
+# ثبت Blueprint رایورز API
+app.register_blueprint(rayvarz_api, url_prefix='/api/rayvarz')
 
 # تنظیمات مسیر پنتاهو
 PENTAHO_SERVER_PATH = os.environ.get('PENTAHO_SERVER_PATH', 'e:/Repsitory/Pentaho/pentaho-server')
